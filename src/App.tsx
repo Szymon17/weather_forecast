@@ -1,17 +1,19 @@
-import "./App.css";
 import { useContext, useEffect } from "react";
 import { ForecestContext } from "./context/forecast.context";
+import Header from "./components/header";
 
 function App() {
-  const { forecast, fetchData, location } = useContext(ForecestContext);
-
-  console.log(forecast);
+  const { forecast, location, fetchData } = useContext(ForecestContext);
 
   useEffect(() => {
     fetchData("Warszawa");
   }, []);
 
-  return <div className="App">{`${location}`}</div>;
+  return (
+    <div className="App">
+      <Header forecest={forecast} location={location}></Header>
+    </div>
+  );
 }
 
 export default App;

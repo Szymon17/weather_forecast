@@ -8,10 +8,15 @@ type context = {
 };
 
 const createLocationObject = (res: any): location => {
+  console.log(res);
   return {
     name: res.name,
-    latitude: res.latitude,
-    longitude: res.longitude,
+    country: res.country,
+    admin1: res.admin1,
+    admin2: res.admin2,
+    admin3: res.admin3,
+    latitude: res.latitude.toFixed(2),
+    longitude: res.longitude.toFixed(2),
     country_code: res.country_code,
     population: res.population,
   };
@@ -19,8 +24,8 @@ const createLocationObject = (res: any): location => {
 
 const createForecestObject = (res: any): forecast => {
   return {
-    latitude: res.latitude,
-    longitude: res.longitude,
+    latitude: res.latitude.toFixed(2),
+    longitude: res.longitude.toFixed(2),
     hourly: res.hourly,
     daily: res.daily,
   };
