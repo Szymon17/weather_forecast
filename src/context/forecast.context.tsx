@@ -8,7 +8,6 @@ type context = {
 };
 
 const createLocationObject = (res: any): location => {
-  console.log(res);
   return {
     name: res.name,
     country: res.country,
@@ -40,7 +39,7 @@ const fetchLocation = async (location: string) => {
 
 const fetchForecast = async (latitude: number, longitude: number, forecast_days: number = 1) => {
   const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}8&longitude=${longitude}8&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=Europe%2FLondon&forecast_days=${forecast_days}`
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}8&longitude=${longitude}8&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&daily=sunrise,sunset&timezone=Europe%2FLondon&forecast_days=${forecast_days}`
   );
   const data = await res.json();
 

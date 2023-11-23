@@ -24,8 +24,6 @@ export type forecast = {
   daily: {
     sunrise: string[];
     sunset: string[];
-    temperature_2m_max: number[];
-    temperature_2m_min: number[];
     time: string[];
   };
 };

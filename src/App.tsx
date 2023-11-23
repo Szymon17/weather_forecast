@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
 import { ForecestContext } from "./context/forecast.context";
 import Header from "./components/header";
+import Prediction from "./components/prediction";
 
 function App() {
   const { forecast, location, fetchData } = useContext(ForecestContext);
@@ -9,9 +10,12 @@ function App() {
     fetchData("Warszawa");
   }, []);
 
+  console.log(forecast);
+
   return (
     <div className="App">
-      <Header forecest={forecast} location={location}></Header>
+      <Header forecest={forecast} location={location} />
+      <Prediction />
     </div>
   );
 }
