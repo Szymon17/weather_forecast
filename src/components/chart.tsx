@@ -1,83 +1,154 @@
-import { FC, useRef, useEffect, CanvasHTMLAttributes } from "react";
+import { FC, useRef, useEffect, CanvasHTMLAttributes, useState } from "react";
 
 type chartParams = CanvasHTMLAttributes<HTMLCanvasElement> & {
+  parent: HTMLDivElement;
   values: number[];
 };
 
-const Chart: FC<chartParams> = ({ values, ...props }) => {
-  const ref = useRef<HTMLCanvasElement>(null);
+type canvasProperteis = {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  step: number;
+  borderSize: { x: number; y: number };
+  ctxSize: { x: number; y: number };
+  chartPattern: number;
+  radius: number;
+};
 
-  useEffect(() => {
+const Chart: FC<chartParams> = ({ values, parent, ...props }) => {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ x: 0, y: 0 });
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  const transferedValues = values.map(value => {
+    let newValue = 0;
+
+    if (min < 0) newValue = (min - value) / min;
+    else newValue = ((min - value) / min) * -1;
+
+    return newValue;
+  });
+
+  const getCanvasProps = (): canvasProperteis => {
     const canvas = ref.current as HTMLCanvasElement;
     const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
 
-    const xborderWidth = 50;
-    const yborderWidth = 20;
+    const borderSize = { x: canvas.width > 1000 ? 50 : 20, y: canvas.width > 1000 ? 20 : 10 };
+    const ctxSize = { x: canvas.width - borderSize.x * 2, y: canvas.height - borderSize.y * 2 };
+    const radius = ctxSize.x / 300;
 
-    const ctxWidth = canvas.width - xborderWidth * 2;
-    const ctxHeight = canvas.height - yborderWidth * 2;
+    const chartPattern = (ctxSize.y - borderSize.y * 2) / Math.max(...transferedValues);
+    const step = ctxSize.x / (values.length - 1);
+
+    return { canvas, ctx, borderSize, ctxSize, radius, chartPattern, step };
+  };
+
+  const calculatePositon = (value: number, index: number, canvasProps: canvasProperteis) => {
+    const { step, borderSize, ctxSize, chartPattern } = canvasProps;
+
+    return {
+      x: step * (index + 1) + borderSize.x,
+      y: ctxSize.y - value * chartPattern + borderSize.y,
+    };
+  };
+
+  useEffect(() => {
+    const canvas = ref.current;
+
+    if (!canvas) return;
+
+    const observer = new ResizeObserver(() => {
+      const cords = { x: parent.clientWidth, y: parent.clientHeight };
+
+      if (cords.x > canvas.width + 50 || cords.x < canvas.width - 50) {
+        canvas.width = cords.x;
+        canvas.height = parent.offsetHeight;
+        setCanvasSize(cords);
+
+        console.log(parent.clientHeight, parent.clientHeight);
+      }
+    });
+
+    observer.observe(document.body);
+  }, [ref]);
+
+  const drawBorder = (canvasProps: canvasProperteis) => {
+    const { canvas, ctx, borderSize } = canvasProps;
 
     ctx.beginPath();
-
-    ctx.fillRect(0, 0, canvas.width, yborderWidth);
-    ctx.fillRect(0, 0, xborderWidth, canvas.height);
-    ctx.fillRect(canvas.width - xborderWidth, 0, xborderWidth, canvas.height);
-    ctx.fillRect(0, canvas.height - yborderWidth, canvas.width, yborderWidth);
-
+    ctx.fillRect(0, 0, canvas.width, borderSize.y);
+    ctx.fillRect(0, 0, borderSize.x, canvas.height);
+    ctx.fillRect(canvas.width - borderSize.x, 0, borderSize.x, canvas.height);
+    ctx.fillRect(0, canvas.height - borderSize.y, canvas.width, borderSize.y);
     ctx.closePath();
+  };
 
-    const transferedValues = transferValuesToPosttive(values, Math.min(...values));
+  const drawChart = (x1: number, y1: number, canvasProps: canvasProperteis, i = 1) => {
+    const { ctx, radius } = canvasProps;
 
-    const max = Math.max(...transferedValues);
-    const min = Math.min(...transferedValues);
+    const value1 = transferedValues[i];
 
-    console.log(values);
-    console.log(transferedValues);
+    const { x: x2, y: y2 } = calculatePositon(value1, i, canvasProps);
+    ctx.strokeStyle = `black`;
 
-    const chartPattern = ctxHeight / max;
-    const step = ctxWidth / (values.length - 1);
-    const beginPoint = calculatePositon(transferedValues[0], 0);
+    ctx.arcTo(x1, y1, x2, y2, radius);
+    ctx.fillText(values[i].toString(), x1 - 10, y1 - 15);
 
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(xborderWidth, beginPoint.y);
+    if (i < transferedValues.length - 1) drawChart(x2, y2, canvasProps, i + 1);
+    else ctx.stroke();
+  };
 
-    for (let i = 0; i < values.length; i++) {
-      const value1 = transferedValues[i];
-      const value2 = transferedValues[i + 1] || value1;
+  const drawLines = (canvasProps: canvasProperteis) => {
+    const { ctx, borderSize, ctxSize, step } = canvasProps;
 
-      const { x: x1, y: y1 } = calculatePositon(value1, i);
-      const { x: x2, y: y2 } = calculatePositon(value2, i + 1);
+    let x = borderSize.x;
+    let y = borderSize.y;
 
-      ctx.arcTo(x1, y1, x2, y2, 15);
+    while (x <= ctxSize.x + borderSize.x) {
+      console.log(x, ctxSize.x, "step");
+      ctx.beginPath();
+      ctx.moveTo(x, borderSize.y);
+      ctx.lineTo(x, ctxSize.y + borderSize.y);
+      ctx.stroke();
+      ctx.closePath();
 
-      ctx.strokeStyle = `black`;
-
-      ctx.fillText(values[i].toString(), x1, y1 - 15);
+      x += step;
     }
 
-    ctx.stroke();
+    const diff = Number(((max + 0.5 - (min - 0.5)) / 10).toFixed(2));
 
-    function calculatePositon(value: number, index: number) {
-      console.log(ctxHeight - value * chartPattern);
+    let el = max + 0.5;
 
-      return {
-        x: step * (index + 1),
-        y: ctxHeight - value * chartPattern + yborderWidth,
-      };
+    for (let i = 0; i <= 10; i++) {
+      el = Number((el - diff).toFixed(2));
+
+      console.log(el);
     }
+  };
 
-    function transferValuesToPosttive(arr: number[], min: number) {
-      return arr.map(value => {
-        let newValue = 0;
+  useEffect(() => {
+    if (values.length) {
+      const canvasProps = getCanvasProps();
+      const { ctx, borderSize, step } = canvasProps;
 
-        if (min < 0) newValue = (min - value) / min;
-        else newValue = ((min - value) / min) * -1;
+      drawBorder(canvasProps);
 
-        return newValue;
-      });
+      const { x: startX, y: startY } = calculatePositon(transferedValues[0], 0, canvasProps);
+
+      ctx.lineWidth = 0.5;
+
+      drawLines(canvasProps);
+
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.moveTo(0, startY);
+      drawChart(startX, startY, canvasProps);
+      ctx.closePath();
     }
-  }, [ref, values]);
+  }, [ref, values, canvasSize]);
 
   return <canvas ref={ref} {...props} />;
 };

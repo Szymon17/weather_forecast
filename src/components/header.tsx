@@ -65,7 +65,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
             </motion.button>
           </div>
         </div>
-        <div className="grid lg:grid-cols-[2fr_1fr] grid-rows-[6fr_5fr] gap-y-5">
+        <div className="grid lg:grid-cols-[2fr_1fr] grid-rows-[6fr_4fr] gap-y-5">
           <div className="relative bg-glass text-xs md:text-sm px-4 py-2 lg:px-8 rounded">
             {location && forecest && (
               <>

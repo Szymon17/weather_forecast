@@ -13,7 +13,7 @@ function App() {
   console.log(forecast);
 
   return (
-    <div className="App">
+    <div className="App h-screen flex flex-col overflow-hidden">
       <Header forecest={forecast} location={location} />
       <Prediction />
     </div>

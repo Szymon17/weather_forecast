@@ -7,7 +7,7 @@ type predictionTypes = "day" | "7days";
 type hoverStateType = "day" | "7days" | null;
 
 const Prediction = () => {
-  const mainRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const [predictionType, setPredictionType] = useState<predictionTypes>("day");
   const [hoverState, setHoverState] = useState<hoverStateType>(null);
@@ -20,8 +20,8 @@ const Prediction = () => {
   };
 
   return (
-    <main ref={mainRef} className="sm:mx-10 pt-5">
-      <div className="2xl:mx-40 flex gap-10 justify-center lg:text-xl 2xl:text-3xl">
+    <main className="sm:mx-10 pt-5 h-1/2 grow flex flex-col">
+      <div className="2xl:mx-40 flex gap-10 justify-center lg:text-xl 2xl:text-3xl mb-2">
         <Button
           onMouseEnter={() => setHoverState("day")}
           onMouseLeave={() => setHoverState(null)}
@@ -41,12 +41,11 @@ const Prediction = () => {
           Prognoza pogody na 7dni
         </Button>
       </div>
-      <Chart
-        width={mainRef.current?.clientWidth || 0}
-        height={window.innerHeight / 2}
-        className="my-4 border-black border-2"
-        values={forecast?.hourly.temperature_2m || []}
-      />
+      <div ref={chartContainerRef} className="w-full grow overflow-hidden">
+        {chartContainerRef.current && (
+          <Chart parent={chartContainerRef.current} className="border-black border-2 w-full h-full" values={forecast?.hourly.temperature_2m || []} />
+        )}
+      </div>
     </main>
   );
 };
