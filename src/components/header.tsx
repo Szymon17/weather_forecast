@@ -116,7 +116,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
               <ParametrSnapshot name="Kierunek wiatru" icon={faCompass} value="20mm" />
             </li>
             <li className="max-w-xs w-full h-full">
-              <ParametrSnapshot name="Maksymalna temperatura" icon={faTemperatureHigh} value={getMax(forecest?.hourly.temperature_2m)} />
+              <ParametrSnapshot name="Maksymalna temperatura" icon={faTemperatureHigh} value={getMax(forecest?.hourly.temperature_2m) + "°C"} />
             </li>
           </ul>
         </div>

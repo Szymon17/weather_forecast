@@ -6,7 +6,7 @@ type props = ButtonHTMLAttributes<HTMLButtonElement> & {
   buttonType?: buttonTypes;
 };
 
-const baseStyles = "transition duration-500 rounded py-2 px-2 2xl:py-3 2xl:px-4 font-semibold";
+const baseStyles = "transition duration-500 rounded py-2 px-2 2xl:py-2 2xl:px-3 font-semibold text-xl";
 
 const Button: FC<props> = ({ children, buttonType = "base", ...otherProps }) => {
   const [styles, setStyles] = useState(baseStyles);

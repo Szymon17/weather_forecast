@@ -1,7 +1,7 @@
-import { MouseEvent, useContext, useRef, useState } from "react";
+import { MouseEvent, useContext, useEffect, useRef, useState } from "react";
+import { ForecestContext } from "../context/forecast.context";
 import Button from "./Button";
 import Chart from "./chart";
-import { ForecestContext } from "../context/forecast.context";
 
 type predictionTypes = "day" | "7days";
 type hoverStateType = "day" | "7days" | null;
@@ -9,16 +9,34 @@ type hoverStateType = "day" | "7days" | null;
 const Prediction = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
+  const [temperatures, setTemperatures] = useState<number[]>([]);
+  const [dates, setDates] = useState<string[]>([]);
   const [predictionType, setPredictionType] = useState<predictionTypes>("day");
   const [hoverState, setHoverState] = useState<hoverStateType>(null);
   const { forecast } = useContext(ForecestContext);
 
+  useEffect(() => {
+    if (forecast) {
+      setTemperatures(forecast.hourly.temperature_2m);
+      setDates(forecast.hourly.time);
+    }
+  }, [forecast]);
+
   const fetchPrediction = (e: MouseEvent<HTMLButtonElement>) => {
     if (e.target) {
       setPredictionType(e.currentTarget.name as predictionTypes);
+
+      if (e.currentTarget.name === "day" && forecast) {
+        setTemperatures(forecast.hourly.temperature_2m);
+        setDates(forecast.hourly.time);
+      } else if (e.currentTarget.name === "7days" && forecast) {
+        // setTemperatures(forecast.daily)
+        // setDates(forecast.hourly.time)
+      }
     }
   };
 
+  console.log(forecast);
   return (
     <main className="sm:mx-10 pt-5 h-1/2 grow flex flex-col">
       <div className="2xl:mx-40 flex gap-10 justify-center lg:text-xl 2xl:text-3xl mb-2">
@@ -42,8 +60,8 @@ const Prediction = () => {
         </Button>
       </div>
       <div ref={chartContainerRef} className="w-full grow overflow-hidden">
-        {chartContainerRef.current && (
-          <Chart parent={chartContainerRef.current} className="border-black border-2 w-full h-full" values={forecast?.hourly.temperature_2m || []} />
+        {chartContainerRef.current && forecast && (
+          <Chart parent={chartContainerRef.current} className="border-black border-2 w-full h-full" dates={dates} values={temperatures} />
         )}
       </div>
     </main>
