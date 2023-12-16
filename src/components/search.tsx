@@ -4,10 +4,11 @@ type Search = {
   label: string;
   width?: string;
   height?: string;
+  state: [string, React.Dispatch<React.SetStateAction<string>>];
 };
 
-const Search: FC<Search> = ({ label, width = "full", height = "full" }) => {
-  const [value, setValue] = useState("");
+const Search: FC<Search> = ({ state, label, width = "full", height = "full" }) => {
+  const [value, setValue] = state;
 
   return (
     <div className={`relative w-${width} h-${height}`}>

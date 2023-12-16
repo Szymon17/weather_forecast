@@ -4,17 +4,17 @@ import Header from "./components/header";
 import Prediction from "./components/prediction";
 
 function App() {
-  const { forecast, location, fetchData } = useContext(ForecestContext);
+  const { forecast24h, forecast7days, location, fetchData } = useContext(ForecestContext);
 
   useEffect(() => {
     fetchData("Warszawa");
   }, []);
 
-  console.log(forecast);
+  console.log(forecast24h);
 
   return (
     <div className="App h-screen flex flex-col overflow-hidden">
-      <Header forecest={forecast} location={location} />
+      <Header forecest={forecast24h} location={location} />
       <Prediction />
     </div>
   );

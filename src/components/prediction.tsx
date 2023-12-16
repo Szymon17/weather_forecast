@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ForecestContext } from "../context/forecast.context";
 import Button from "./Button";
 import Chart from "./chart";
@@ -13,38 +13,29 @@ const Prediction = () => {
   const [dates, setDates] = useState<string[]>([]);
   const [predictionType, setPredictionType] = useState<predictionTypes>("day");
   const [hoverState, setHoverState] = useState<hoverStateType>(null);
-  const { forecast } = useContext(ForecestContext);
+
+  const { forecast24h, forecast7days } = useContext(ForecestContext);
 
   useEffect(() => {
-    if (forecast) {
-      setTemperatures(forecast.hourly.temperature_2m);
-      setDates(forecast.hourly.time);
+    if (!forecast7days || !forecast24h) return;
+
+    if (predictionType === "day") {
+      setTemperatures(forecast24h.hourly.temperature_2m);
+      setDates(forecast24h.hourly.time);
+    } else {
+      setTemperatures(forecast7days.hourly.temperature_2m);
+      setDates(forecast7days.hourly.time);
     }
-  }, [forecast]);
+  }, [predictionType, forecast7days]);
 
-  const fetchPrediction = (e: MouseEvent<HTMLButtonElement>) => {
-    if (e.target) {
-      setPredictionType(e.currentTarget.name as predictionTypes);
-
-      if (e.currentTarget.name === "day" && forecast) {
-        setTemperatures(forecast.hourly.temperature_2m);
-        setDates(forecast.hourly.time);
-      } else if (e.currentTarget.name === "7days" && forecast) {
-        // setTemperatures(forecast.daily)
-        // setDates(forecast.hourly.time)
-      }
-    }
-  };
-
-  console.log(forecast);
   return (
     <main className="sm:mx-10 pt-5 h-1/2 grow flex flex-col">
       <div className="2xl:mx-40 flex gap-10 justify-center lg:text-xl 2xl:text-3xl mb-2">
         <Button
           onMouseEnter={() => setHoverState("day")}
           onMouseLeave={() => setHoverState(null)}
-          onClick={fetchPrediction}
           name="day"
+          onClick={() => setPredictionType("day")}
           buttonType={predictionType === "day" || hoverState === "day" ? "base" : "reverse"}
         >
           Prognoza pogody na dziś
@@ -53,14 +44,14 @@ const Prediction = () => {
           name="7days"
           onMouseEnter={() => setHoverState("7days")}
           onMouseLeave={() => setHoverState(null)}
-          onClick={fetchPrediction}
+          onClick={() => setPredictionType("7days")}
           buttonType={predictionType === "7days" || hoverState === "7days" ? "base" : "reverse"}
         >
           Prognoza pogody na 7dni
         </Button>
       </div>
       <div ref={chartContainerRef} className="w-full grow overflow-hidden">
-        {chartContainerRef.current && forecast && (
+        {chartContainerRef.current && forecast7days && (
           <Chart parent={chartContainerRef.current} className="border-black border-2 w-full h-full" dates={dates} values={temperatures} />
         )}
       </div>

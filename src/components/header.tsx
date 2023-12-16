@@ -1,8 +1,9 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, MouseEvent, useContext } from "react";
 import { forecast, location } from "../types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloud, faCompass, faPeopleGroup, faSearch, faTemperatureHigh, faWind } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
+import { ForecestContext } from "../context/forecast.context";
 import Search from "./search";
 import WeatherCodeIcon from "./weatherCodeIcon";
 import ParametrSnapshot from "./parametrSnapshot";
@@ -15,6 +16,11 @@ type Header = {
 const Header: FC<Header> = ({ forecest, location }) => {
   const [time, setTime] = useState(new Date());
   const [temperature, setTemperature] = useState<number | undefined>();
+  const [searchByLoaclization, setSearchedLocalization] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+
+  const { fetchData } = useContext(ForecestContext);
 
   useEffect(() => {
     setTemperature(getTemperatureNow(time));
@@ -40,15 +46,19 @@ const Header: FC<Header> = ({ forecest, location }) => {
     return Math.max(...(array || [])).toString();
   };
 
-  const dateToLocalString = (value: number): string => (value > 10 ? value.toString() : "0" + value);
+  const dateToLocalString = (value: number): string => (value >= 10 ? value.toString() : "0" + value);
   const getDayName = (date: Date) => date.toLocaleDateString("pl-PL", { weekday: "long" });
+
+  const fetchByLocation = () => {
+    fetchData(searchByLoaclization);
+  };
 
   return (
     <header className="bg-black text-white">
       <div className="container w-full max-w-screen-2xl pt-3 pb-5 px-2 sm:px-10 mx-auto">
         <div className="relative mb-2 w-full flex justify-center items-center flex-col md:flex-row gap-y-3">
           <div className="h-10 w-full md:w-auto md:grow max-w-5xl">
-            <Search label="Znajdź lokalizację" />
+            <Search state={[searchByLoaclization, setSearchedLocalization]} label="Znajdź lokalizację" />
           </div>
           <div className="mx-4 hidden md:flex items-center w-auto h-16 flex-col">
             <span className="grow w-0.5 bg-white" />
@@ -57,10 +67,15 @@ const Header: FC<Header> = ({ forecest, location }) => {
           </div>
           <div className="h-24 md:h-10 grow gap-4 w-full md:w-1/3 flex flex-col md:flex-row justify-around max-w-2xl">
             <div className="w-full h-1/2 md:w-auto md:grow md:h-full flex gap-x-3 justify-between">
-              <Search width="2/3" label="Szerokość geograficzna" />
-              <Search width="2/3" label="Wysokość geograficzna" />
+              <Search state={[latitude, setLatitude]} width="2/3" label="Szerokość geograficzna" />
+              <Search state={[longitude, setLongitude]} width="2/3" label="Wysokość geograficzna" />
             </div>
-            <motion.button initial={{ backgroundColor: "#808080" }} whileHover={{ backgroundColor: "#FFFFFF" }} className="py-2 px-4 rounded md:w-20">
+            <motion.button
+              onClick={fetchByLocation}
+              initial={{ backgroundColor: "#808080" }}
+              whileHover={{ backgroundColor: "#FFFFFF" }}
+              className="py-2 px-4 rounded md:w-20"
+            >
               <FontAwesomeIcon icon={faSearch} />
             </motion.button>
           </div>

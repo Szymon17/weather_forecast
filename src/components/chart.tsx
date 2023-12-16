@@ -92,7 +92,8 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
     ctx.strokeStyle = `black`;
 
     ctx.arcTo(x1, y1, x2, y2, radius);
-    ctx.fillText(values[i - 1].toString() + "°C", x1 - 7, y1 - 15);
+
+    if ((values.length > 24 && i % 5 === 0) || values.length <= 24) ctx.fillText(values[i - 1].toString() + "°C", x1, y1 - 15);
 
     if (i < transferedValues.length - 1) drawChart(x2, y2, canvasProps, i + 1);
     else {
@@ -114,6 +115,7 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
     let index = 1;
 
     while (x <= ctxSize.x + borderSize.x) {
+      console.log(x);
       ctx.beginPath();
       ctx.moveTo(x, borderSize.y);
       ctx.lineTo(x, ctxSize.y + borderSize.y);
@@ -123,24 +125,28 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
       if (dates[index - 1]) {
         const date = new Date(dates[index - 1]);
 
-        let stringDate;
+        let stringDate = "";
+        let textX = x;
 
-        if (dates.length === 24) {
+        if (values.length <= 24) {
           if (ctxSize.x < 600) stringDate = `${date.getHours() >= 10 ? date.getHours() : "0" + date.getHours()}`;
           else stringDate = `${date.getHours() >= 10 ? date.getHours() : "0" + date.getHours()}:00`;
-        } else {
-          stringDate = "";
+          textX = x + step / 2;
+        } else if (index <= 7) {
+          stringDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + index).toLocaleDateString();
+          textX = x + ctxSize.x / 7 / 2;
         }
 
         if (date.getHours() === new Date().getHours()) ctx.fillStyle = "orange";
         else ctx.fillStyle = "white";
 
-        ctx.fillText(stringDate, x + 10, borderSize.y / 2);
+        ctx.fillText(stringDate, textX, borderSize.y / 2);
 
         ctx.fillStyle = "black";
       }
 
-      x += step;
+      if (values.length > 24) x += ctxSize.x / 7;
+      else if (values.length === 24) x += step;
 
       index++;
     }
@@ -163,7 +169,11 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
   useEffect(() => {
     if (values.length) {
       const canvasProps = getCanvasProps();
-      const { ctx, borderSize, step } = canvasProps;
+      const { ctx, canvas } = canvasProps;
+
+      ctx.textAlign = "center";
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       drawBorder(canvasProps);
 
