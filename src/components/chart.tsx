@@ -1,7 +1,6 @@
 import { FC, useRef, useEffect, CanvasHTMLAttributes, useState } from "react";
 
 type chartParams = CanvasHTMLAttributes<HTMLCanvasElement> & {
-  parent: HTMLDivElement;
   values: number[];
   dates: string[];
 };
@@ -16,12 +15,11 @@ type canvasProperteis = {
   radius: number;
 };
 
-const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
+const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ x: 0, y: 0 });
 
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  const min = Math.min(...values) || 1;
 
   const transferedValues = values.map(value => {
     let newValue = 0;
@@ -60,13 +58,18 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
 
     if (!canvas) return;
 
-    const observer = new ResizeObserver(() => {
-      const cords = { x: parent.clientWidth, y: parent.clientHeight };
+    let delay = false;
 
-      if (cords.x > canvas.width + 50 || cords.x < canvas.width - 50) {
-        canvas.width = cords.x;
-        canvas.height = parent.offsetHeight;
-        setCanvasSize(cords);
+    const observer = new ResizeObserver(() => {
+      if ((window.innerWidth > canvas.width + 50 || window.innerWidth < canvas.width - 50) && !delay) {
+        delay = true;
+
+        setTimeout(() => {
+          delay = false;
+          canvas.width = window.innerWidth - 60;
+          canvas.height = window.innerHeight / 2;
+          setCanvasSize({ x: window.innerWidth, y: window.innerHeight / 2 });
+        }, 10);
       }
     });
 
@@ -115,7 +118,6 @@ const Chart: FC<chartParams> = ({ values, parent, dates, ...props }) => {
     let index = 1;
 
     while (x <= ctxSize.x + borderSize.x) {
-      console.log(x);
       ctx.beginPath();
       ctx.moveTo(x, borderSize.y);
       ctx.lineTo(x, ctxSize.y + borderSize.y);

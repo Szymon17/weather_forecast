@@ -4,7 +4,7 @@ import Header from "./components/header";
 import Prediction from "./components/prediction";
 
 function App() {
-  const { forecast24h, forecast7days, location, fetchData } = useContext(ForecestContext);
+  const { forecast24h, location, fetchData } = useContext(ForecestContext);
 
   useEffect(() => {
     fetchData("Warszawa");
@@ -13,7 +13,7 @@ function App() {
   console.log(forecast24h);
 
   return (
-    <div className="App h-screen flex flex-col overflow-hidden">
+    <div className="App h-screen flex flex-col overflow-scroll-y">
       <Header forecest={forecast24h} location={location} />
       <Prediction />
     </div>

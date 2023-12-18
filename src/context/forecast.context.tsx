@@ -74,7 +74,7 @@ const ForecastProvider: FC<PropsWithChildren> = ({ children }) => {
   const [forecast7days, setForecast7days] = useState<forecast | null>(null);
   const [forecast24h, setForecast24h] = useState<forecast | null>(null);
 
-  const fetchData = async (location: string, days: number = 1) => {
+  const fetchData = async (location: string) => {
     const locationData = await fetchLocation(location);
     const forecastData = await fetchForecast(locationData.latitude, locationData.longitude);
 
