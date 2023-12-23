@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { ForecestContext } from "./context/forecast.context";
-import Header from "./components/header";
-import Prediction from "./components/prediction";
+import Header from "./components/Header";
+import Prediction from "./components/Prediction";
 
 function App() {
   const { forecast24h, location, fetchData } = useContext(ForecestContext);
@@ -13,7 +13,7 @@ function App() {
   console.log(forecast24h);
 
   return (
-    <div className="App h-screen flex flex-col overflow-scroll-y">
+    <div className="App h-screen flex flex-col ">
       <Header forecest={forecast24h} location={location} />
       <Prediction />
     </div>
