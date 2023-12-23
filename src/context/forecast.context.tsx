@@ -27,7 +27,6 @@ const createForecestObject = (res: any): forecast => {
     latitude: res.latitude.toFixed(2),
     longitude: res.longitude.toFixed(2),
     hourly: res.hourly,
-    daily: res.daily,
   };
 };
 
@@ -40,7 +39,7 @@ const fetchLocation = async (location: string) => {
 
 const fetchForecast = async (latitude: number, longitude: number) => {
   const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}8&longitude=${longitude}8&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&daily=sunrise,sunset&timezone=Europe%2FLondon&forecast_days=7`
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}8&longitude=${longitude}8&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&forecast_days=8`
   );
   const data = await res.json();
 
@@ -58,7 +57,6 @@ const get24hForecest = (forecastData: forecast): forecast => {
     latitude: forecastData.latitude,
     longitude: forecastData.longitude,
     hourly,
-    daily: forecastData.daily,
   };
 };
 

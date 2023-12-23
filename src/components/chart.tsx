@@ -132,10 +132,10 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
 
         if (values.length <= 24) {
           if (ctxSize.x < 600) stringDate = `${date.getHours() >= 10 ? date.getHours() : "0" + date.getHours()}`;
-          else stringDate = `${date.getHours() >= 10 ? date.getHours() : "0" + date.getHours()}:00`;
+          else stringDate = date.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
           textX = x + step / 2;
         } else if (index <= 7) {
-          stringDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + index).toLocaleDateString();
+          stringDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + index - 1).toLocaleDateString();
           textX = x + ctxSize.x / 7 / 2;
         }
 

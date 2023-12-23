@@ -21,9 +21,4 @@ export type forecast = {
     weathercode: number[];
     windspeed_10m: number[];
   };
-  daily: {
-    sunrise: string[];
-    sunset: string[];
-    time: string[];
-  };
 };

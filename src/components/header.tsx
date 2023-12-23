@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloud, faCompass, faPeopleGroup, faSearch, faTemperatureHigh, faWind } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { ForecestContext } from "../context/forecast.context";
-import Search from "./search";
-import WeatherCodeIcon from "./weatherCodeIcon";
-import ParametrSnapshot from "./parametrSnapshot";
+import Search from "./Search";
+import WeatherCodeIcon from "./WeatherCodeIcon";
+import ParametrSnapshot from "./ParametrSnapshot";
 
 type Header = {
   forecest: forecast | null;
