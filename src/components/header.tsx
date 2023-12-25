@@ -20,7 +20,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
-  const { fetchData } = useContext(ForecestContext);
+  const { fetchData, fetchForecestByCords } = useContext(ForecestContext);
 
   useEffect(() => {
     setTemperature(getTemperatureNow(time));
@@ -49,8 +49,9 @@ const Header: FC<Header> = ({ forecest, location }) => {
   const dateToLocalString = (value: number): string => (value >= 10 ? value.toString() : "0" + value);
   const getDayName = (date: Date) => date.toLocaleDateString("pl-PL", { weekday: "long" });
 
-  const fetchByLocation = () => {
-    fetchData(searchByLoaclization);
+  const fetchForecestData = () => {
+    if (searchByLoaclization) fetchData(searchByLoaclization);
+    else if (latitude && longitude) fetchForecestByCords(Number(latitude), Number(longitude));
   };
 
   return (
@@ -71,7 +72,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
               <Search state={[longitude, setLongitude]} width="2/3" label="Wysokość geograficzna" />
             </div>
             <motion.button
-              onClick={fetchByLocation}
+              onClick={fetchForecestData}
               initial={{ backgroundColor: "#808080" }}
               whileHover={{ backgroundColor: "#FFFFFF" }}
               className="py-2 px-4 rounded md:w-20"

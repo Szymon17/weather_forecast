@@ -6,7 +6,10 @@ type context = {
   forecast7days: forecast | null;
   forecast24h: forecast | null;
   fetchData: (location: string) => void;
+  fetchForecestByCords: (latitude: number, longitude: number) => void;
 };
+
+const delayTime = 10000;
 
 const createLocationObject = (res: any): location => {
   return {
@@ -34,16 +37,17 @@ const fetchLocation = async (location: string) => {
   const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${location}&count=1&language=pl&format=json`);
   const { results } = await res.json();
 
-  return createLocationObject(results[0]);
+  if (results) return createLocationObject(results[0]);
 };
 
 const fetchForecast = async (latitude: number, longitude: number) => {
   const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}8&longitude=${longitude}8&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&forecast_days=8`
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,precipitation,weathercode,cloudcover,windspeed_10m&forecast_days=8`
   );
   const data = await res.json();
 
-  return createForecestObject(data);
+  if (!data.error) return createForecestObject(data);
+  else console.error(data.reason);
 };
 
 const get24hForecest = (forecastData: forecast): forecast => {
@@ -65,23 +69,63 @@ export const ForecestContext = createContext<context>({
   forecast7days: null,
   forecast24h: null,
   fetchData: () => null,
+  fetchForecestByCords: () => null,
 });
 
 const ForecastProvider: FC<PropsWithChildren> = ({ children }) => {
   const [location, setLocation] = useState<location | null>(null);
   const [forecast7days, setForecast7days] = useState<forecast | null>(null);
   const [forecast24h, setForecast24h] = useState<forecast | null>(null);
+  const [fetchDelay, setFetchDelay] = useState(false);
 
-  const fetchData = async (location: string) => {
-    const locationData = await fetchLocation(location);
-    const forecastData = await fetchForecast(locationData.latitude, locationData.longitude);
-
-    setLocation(locationData);
-    setForecast7days(forecastData);
-    setForecast24h(get24hForecest(forecastData));
+  const setContextData = (forecest: forecast, location: location) => {
+    setForecast7days(forecest);
+    setForecast24h(get24hForecest(forecest));
+    setLocation(location);
   };
 
-  const value = { location, forecast7days, forecast24h, fetchData };
+  const fetchForecestByCords = async (latitude: number, longitude: number) => {
+    if (fetchDelay) return;
+
+    const forecastData = await fetchForecast(latitude, longitude);
+
+    if (!forecastData) return;
+
+    const location = {
+      name: "Nieznane",
+      country: "",
+      admin1: "Bd",
+      admin2: "Bd",
+      admin3: "",
+      latitude,
+      longitude,
+      country_code: "",
+      population: NaN,
+    };
+
+    setContextData(forecastData, location);
+
+    setFetchDelay(true);
+    setTimeout(() => setFetchDelay(false), delayTime);
+  };
+
+  const fetchData = async (location: string) => {
+    if (fetchDelay) return;
+
+    const locationData = await fetchLocation(location);
+
+    if (!locationData) return;
+
+    const forecastData = await fetchForecast(locationData.latitude, locationData.longitude);
+
+    if (!forecastData) return;
+
+    setContextData(forecastData, locationData);
+    setFetchDelay(true);
+    setTimeout(() => setFetchDelay(false), delayTime);
+  };
+
+  const value = { location, forecast7days, forecast24h, fetchData, fetchForecestByCords };
 
   return <ForecestContext.Provider value={value}>{children}</ForecestContext.Provider>;
 };
