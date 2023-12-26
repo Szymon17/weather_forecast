@@ -7,6 +7,7 @@ type context = {
   forecast24h: forecast | null;
   fetchData: (location: string) => void;
   fetchForecestByCords: (latitude: number, longitude: number) => void;
+  fetchDelay: boolean;
 };
 
 const delayTime = 10000;
@@ -70,6 +71,7 @@ export const ForecestContext = createContext<context>({
   forecast24h: null,
   fetchData: () => null,
   fetchForecestByCords: () => null,
+  fetchDelay: false,
 });
 
 const ForecastProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -125,7 +127,7 @@ const ForecastProvider: FC<PropsWithChildren> = ({ children }) => {
     setTimeout(() => setFetchDelay(false), delayTime);
   };
 
-  const value = { location, forecast7days, forecast24h, fetchData, fetchForecestByCords };
+  const value = { location, forecast7days, forecast24h, fetchDelay, fetchData, fetchForecestByCords };
 
   return <ForecestContext.Provider value={value}>{children}</ForecestContext.Provider>;
 };

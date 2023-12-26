@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloud, faCompass, faPeopleGroup, faSearch, faTemperatureHigh, faWind } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 import { ForecestContext } from "../context/forecast.context";
+import { toast } from "react-toastify";
 import Search from "./Search";
 import WeatherCodeIcon from "./WeatherCodeIcon";
 import ParametrSnapshot from "./ParametrSnapshot";
@@ -20,7 +21,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
 
-  const { fetchData, fetchForecestByCords } = useContext(ForecestContext);
+  const { fetchDelay, fetchData, fetchForecestByCords } = useContext(ForecestContext);
 
   useEffect(() => {
     setTemperature(getTemperatureNow(time));
@@ -50,8 +51,10 @@ const Header: FC<Header> = ({ forecest, location }) => {
   const getDayName = (date: Date) => date.toLocaleDateString("pl-PL", { weekday: "long" });
 
   const fetchForecestData = () => {
-    if (searchByLoaclization) fetchData(searchByLoaclization);
-    else if (latitude && longitude) fetchForecestByCords(Number(latitude), Number(longitude));
+    if (!fetchDelay) {
+      if (searchByLoaclization) fetchData(searchByLoaclization);
+      else if (latitude && longitude) fetchForecestByCords(Number(latitude), Number(longitude));
+    } else toast.info("Odczekaj chwilę zanim ponownie odszukasz pogody", { theme: "dark" });
   };
 
   return (
