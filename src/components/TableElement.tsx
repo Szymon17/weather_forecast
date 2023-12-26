@@ -1,4 +1,5 @@
 import { FC } from "react";
+import WeatherCodeIcon from "./WeatherCodeIcon";
 
 type TableElementParam = {
   data: {
@@ -22,7 +23,9 @@ const TableElement: FC<TableElementParam> = ({ data, format }) => {
   return (
     <ul className="flex justify-between gap-1 text-white">
       <li className="w-1/6 text-center px-2 py-5 bg-cyan-400 rounded">{displayTime(time)}</li>
-      <li className="w-1/4 text-center px-2 py-5 bg-zinc-600 rounded">{weatherIcon}</li>
+      <li className="w-1/4 text-center px-2 py-5 bg-zinc-600 rounded">
+        <WeatherCodeIcon className="text-2xl" weathercode={weatherIcon} />
+      </li>
       <li className="w-1/4 text-center px-2 py-5 bg-zinc-600 rounded">{temperature + "°C"}</li>
       <li className="w-1/4 text-center px-2 py-5 bg-zinc-600 rounded">{windSpeed + "km/h"}</li>
       <li className="w-1/4 text-center px-2 py-5 bg-zinc-600 rounded">{precipitation + "mm"}</li>
