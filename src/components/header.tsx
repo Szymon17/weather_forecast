@@ -16,7 +16,8 @@ type Header = {
 
 const Header: FC<Header> = ({ forecest, location }) => {
   const [time, setTime] = useState(new Date());
-  const [temperature, setTemperature] = useState<number | undefined>();
+  const [temperature, setTemperature] = useState(0);
+  const [weatherCode, setWeatherCode] = useState(0);
   const [searchByLoaclization, setSearchedLocalization] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -25,11 +26,13 @@ const Header: FC<Header> = ({ forecest, location }) => {
 
   useEffect(() => {
     setTemperature(getTemperatureNow(time));
+    setWeatherCode(getWeatherCodeNow(time));
 
     const intervalIndex = setInterval(() => {
       const newTime = new Date();
       setTime(newTime);
       setTemperature(getTemperatureNow(newTime));
+      setWeatherCode(getWeatherCodeNow(newTime));
     }, 1000);
 
     return () => {
@@ -37,10 +40,16 @@ const Header: FC<Header> = ({ forecest, location }) => {
     };
   }, [setTime, setTemperature, forecest]);
 
-  const getTemperatureNow = (date: Date): number | undefined => {
+  const getTemperatureNow = (date: Date): number => {
     const hourNow = date.getHours();
 
-    return forecest?.hourly.temperature_2m[hourNow - 1];
+    return forecest?.hourly.temperature_2m[hourNow] || 0;
+  };
+
+  const getWeatherCodeNow = (date: Date): number => {
+    const hourNow = date.getHours();
+
+    return forecest?.hourly.weathercode[hourNow] || 0;
   };
 
   const getMax = (array: number[] | undefined): string => {
@@ -50,10 +59,10 @@ const Header: FC<Header> = ({ forecest, location }) => {
   const dateToLocalString = (value: number): string => (value >= 10 ? value.toString() : "0" + value);
   const getDayName = (date: Date) => date.toLocaleDateString("pl-PL", { weekday: "long" });
 
-  const fetchForecestData = () => {
+  const fetchForecestData = (searchByLoaclization: string, cords?: { latitude: number; longitude: number }) => {
     if (!fetchDelay) {
       if (searchByLoaclization) fetchData(searchByLoaclization);
-      else if (latitude && longitude) fetchForecestByCords(Number(latitude), Number(longitude));
+      else if (cords) fetchForecestByCords(cords.latitude, cords.longitude);
     } else toast.info("Odczekaj chwilę zanim ponownie odszukasz pogody", { theme: "dark" });
   };
 
@@ -75,7 +84,7 @@ const Header: FC<Header> = ({ forecest, location }) => {
               <Search state={[longitude, setLongitude]} width="2/3" label="Wysokość geograficzna" />
             </div>
             <motion.button
-              onClick={fetchForecestData}
+              onClick={() => fetchForecestData(searchByLoaclization, { latitude: Number(latitude), longitude: Number(longitude) })}
               initial={{ backgroundColor: "#808080" }}
               whileHover={{ backgroundColor: "#FFFFFF" }}
               className="py-2 px-4 rounded md:w-20"
@@ -100,10 +109,10 @@ const Header: FC<Header> = ({ forecest, location }) => {
                 </h2>
                 <h2>
                   <FontAwesomeIcon className="text-sky-400" icon={faPeopleGroup} />
-                  <span className="ml-2">{Math.round(location.population / 10000)} tyś</span>
+                  <span className="ml-2">{Math.round(location.population / 1000)} tyś</span>
                 </h2>
                 <div className="text-center md:mt-4 sm:absolute sm:right-10 sm:-translate-y-full md:top-1/2 md:-translate-y-1/2">
-                  <WeatherCodeIcon weathercode={3} />
+                  <WeatherCodeIcon weathercode={weatherCode} />
                   <span className="text-2xl sm:text-4xl font-bold">{temperature}°C</span>
                 </div>
               </>
@@ -116,12 +125,24 @@ const Header: FC<Header> = ({ forecest, location }) => {
               <h2 className="text-xl font-bold">{time.toLocaleDateString("pl-PL")}</h2>
             </div>
             <ul className="text-center flex flex-col justify-between">
-              <li className="cursor-pointer">Warszawa</li>
-              <li className="cursor-pointer">Wrocław</li>
-              <li className="cursor-pointer">Kraków</li>
-              <li className="cursor-pointer">Łódź</li>
-              <li className="cursor-pointer">Poznań</li>
-              <li className="cursor-pointer">Gdańsk</li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("warszawa")}>
+                Warszawa
+              </li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("wrocław")}>
+                Wrocław
+              </li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("kraków")}>
+                Kraków
+              </li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("łódź")}>
+                Łódź
+              </li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("poznań")}>
+                Poznań
+              </li>
+              <li className="cursor-pointer" onClick={() => fetchForecestData("gdańsk")}>
+                Gdańsk
+              </li>
             </ul>
           </div>
           <ul className="flex justify-between gap-5">
