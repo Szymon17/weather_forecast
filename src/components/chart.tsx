@@ -35,7 +35,7 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
 
     const borderSize = { x: canvas.width > 1000 ? 20 : 10, y: canvas.width > 1000 ? 30 : 20 };
-    const ctxSize = { x: canvas.width - borderSize.x * 2, y: canvas.height - borderSize.y * 2 };
+    const ctxSize = { x: canvas.width - borderSize.x * 2, y: canvas.height - borderSize.y - borderSize.y / 2 };
     const radius = ctxSize.x / 300;
 
     const chartPattern = (ctxSize.y - borderSize.y * 3) / Math.max(...transferedValues);
@@ -83,7 +83,7 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     ctx.fillRect(0, 0, canvas.width, borderSize.y);
     ctx.fillRect(0, 0, borderSize.x, canvas.height);
     ctx.fillRect(canvas.width - borderSize.x, 0, borderSize.x, canvas.height);
-    ctx.fillRect(0, canvas.height - borderSize.y, canvas.width, borderSize.y);
+    ctx.fillRect(0, canvas.height - borderSize.y / 2, canvas.width, borderSize.y);
     ctx.closePath();
   };
 
@@ -92,7 +92,7 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     const value1 = transferedValues[i];
 
     const { x: x2, y: y2 } = calculatePositon(value1, i, canvasProps);
-    ctx.strokeStyle = `black`;
+    ctx.strokeStyle = `rgb(35, 120, 168)`;
 
     ctx.arcTo(x1, y1, x2, y2, radius);
 
@@ -171,7 +171,7 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
   useEffect(() => {
     if (values.length) {
       const canvasProps = getCanvasProps();
-      const { ctx, canvas } = canvasProps;
+      const { ctx, canvas, borderSize, ctxSize } = canvasProps;
 
       ctx.textAlign = "center";
 
@@ -181,14 +181,16 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
 
       const { x: startX, y: startY } = calculatePositon(transferedValues[0], 0, canvasProps);
 
-      ctx.lineWidth = 0.3;
+      ctx.lineWidth = 0.2;
 
       drawLines(canvasProps);
 
-      ctx.lineWidth = 1;
+      if (ctxSize.x > 1000) ctx.font = "12px arial";
+      else ctx.font = "8px arial";
+      ctx.lineWidth = 2.5;
 
       ctx.beginPath();
-      ctx.moveTo(0, startY);
+      ctx.moveTo(borderSize.x, startY);
       drawChart(startX, startY, canvasProps);
       ctx.closePath();
     }
