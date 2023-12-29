@@ -14,8 +14,14 @@ const Table: FC<TableParams> = ({ forecest }) => {
     else setForecestFormat("7days");
   }, [forecest]);
 
+  const getAvg = (arr: number[]) => {
+    const sum = arr.reduce((prv, curr) => prv + curr);
+
+    return (sum / arr.length).toFixed(1);
+  };
+
   return (
-    <div className="grid md:grid-cols-2 gap-y-10 gap-x-6 text-xs lg:text-sm lg:mx-20 mt-10">
+    <div className="grid md:grid-cols-2 gap-y-10 gap-x-6 text-xs lg:text-sm lg:mx-5 mt-10">
       <ul className={`flex justify-between`}>
         <li className="w-1/6 text-center">Godzina</li>
         <li className="w-1/4 text-center">Zachmurzenie</li>
@@ -33,13 +39,24 @@ const Table: FC<TableParams> = ({ forecest }) => {
       {forecest.hourly.temperature_2m.map((__, index) => {
         if (forecestFormat === "7days" && index % 24 !== 0) return;
 
-        const elementData = {
-          time: forecest.hourly.time[index],
-          weatherIcon: forecest.hourly.weathercode[index],
-          temperature: forecest.hourly.temperature_2m[index],
-          windSpeed: forecest.hourly.windspeed_10m[index],
-          precipitation: forecest.hourly.precipitation[index],
-        };
+        let elementData: any = {};
+
+        if (forecestFormat === "day")
+          elementData = {
+            time: forecest.hourly.time[index],
+            weatherIcon: forecest.hourly.weathercode[index],
+            temperature: forecest.hourly.temperature_2m[index],
+            windSpeed: forecest.hourly.windspeed_10m[index],
+            precipitation: forecest.hourly.precipitation[index],
+          };
+        else
+          elementData = {
+            time: forecest.hourly.time[index + 12],
+            weatherIcon: forecest.hourly.weathercode[index + 12],
+            temperature: getAvg(forecest.hourly.temperature_2m.slice(index + 7, index + 19)),
+            windSpeed: getAvg(forecest.hourly.windspeed_10m.slice(index + 7, index + 19)),
+            precipitation: getAvg(forecest.hourly.precipitation.slice(index + 7, index + 19)),
+          };
 
         return <TableElement key={index} format={forecestFormat} data={elementData} />;
       })}

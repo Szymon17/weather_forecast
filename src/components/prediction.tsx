@@ -36,7 +36,7 @@ const Prediction = () => {
   const getTemperatures = () => actualForecest?.hourly.temperature_2m || [];
 
   return (
-    <main className="sm:mx-10 pt-5 h-1/2 grow flex flex-col">
+    <main className="lg:mx-auto pt-5 h-1/2 w-full grow flex flex-col max-h-[1000px] max-w-[2000px] ">
       <div className="2xl:mx-40 relative flex gap-10 justify-center lg:text-xl 2xl:text-3xl mb-2">
         <Button
           onMouseEnter={() => setHoverState("day")}
@@ -63,7 +63,7 @@ const Prediction = () => {
         />
       </div>
       {actualForecest && (
-        <div className="w-full grow">
+        <div className="w-full grow md:px-10">
           {displayType === "chart" ? (
             <Chart className="border-black border-2 w-full h-full overflow-hidden" dates={getDates()} values={getTemperatures()} />
           ) : (
