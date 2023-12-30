@@ -22,3 +22,11 @@ export type forecast = {
     windspeed_10m: number[];
   };
 };
+
+export type tableElementData = {
+  time: string;
+  weatherIcon: number;
+  temperature: number;
+  windSpeed: number;
+  precipitation: number;
+};

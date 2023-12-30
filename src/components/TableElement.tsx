@@ -1,14 +1,9 @@
 import { FC } from "react";
 import WeatherCodeIcon from "./WeatherCodeIcon";
+import { tableElementData } from "../types";
 
 type TableElementParam = {
-  data: {
-    time: string;
-    weatherIcon: number;
-    temperature: number;
-    windSpeed: number;
-    precipitation: number;
-  };
+  data: tableElementData;
   format: "day" | "7days";
 };
 

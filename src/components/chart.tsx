@@ -1,4 +1,4 @@
-import { FC, useRef, useEffect, CanvasHTMLAttributes, useState } from "react";
+import { FC, useRef, useEffect, CanvasHTMLAttributes, useState, UIEvent } from "react";
 
 type chartParams = CanvasHTMLAttributes<HTMLCanvasElement> & {
   values: number[];
@@ -8,6 +8,8 @@ type chartParams = CanvasHTMLAttributes<HTMLCanvasElement> & {
 type canvasProperteis = {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
+  canvas2: HTMLCanvasElement;
+  ctx2: CanvasRenderingContext2D;
   step: number;
   borderSize: { x: number; y: number };
   ctxSize: { x: number; y: number };
@@ -17,6 +19,8 @@ type canvasProperteis = {
 
 const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
   const ref = useRef<HTMLCanvasElement>(null);
+  const ref2 = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ x: 0, y: 0 });
 
   const min = Math.min(...values) || 1;
@@ -34,6 +38,9 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     const canvas = ref.current as HTMLCanvasElement;
     const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
 
+    const canvas2 = ref2.current as HTMLCanvasElement;
+    const ctx2 = canvas2?.getContext("2d") as CanvasRenderingContext2D;
+
     const borderSize = { x: canvas.width > 1000 ? 20 : 10, y: canvas.width > 1000 ? 30 : 20 };
     const ctxSize = { x: canvas.width - borderSize.x * 2, y: canvas.height - borderSize.y - borderSize.y / 2 };
     const radius = ctxSize.x / 300;
@@ -41,7 +48,7 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     const chartPattern = (ctxSize.y - borderSize.y * 3) / Math.max(...transferedValues);
     const step = ctxSize.x / values.length;
 
-    return { canvas, ctx, borderSize, ctxSize, radius, chartPattern, step };
+    return { canvas, ctx, canvas2, ctx2, borderSize, ctxSize, radius, chartPattern, step };
   };
 
   const calculatePositon = (value: number, index: number, canvasProps: canvasProperteis) => {
@@ -55,8 +62,10 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
 
   useEffect(() => {
     const canvas = ref.current;
+    const canvas2 = ref2.current;
+    const container = containerRef.current;
 
-    if (!canvas) return;
+    if (!canvas || !canvas2 || !container) return;
 
     let delay = false;
 
@@ -66,9 +75,16 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
 
         setTimeout(() => {
           delay = false;
-          canvas.width = window.innerWidth - 60;
+          const x = window.innerWidth < 1000 ? 1000 : window.innerWidth - 60;
+
+          canvas.width = x;
           canvas.height = window.innerHeight / 2;
+
+          canvas2.width = x;
+          canvas2.height = window.innerHeight / 2;
           setCanvasSize({ x: window.innerWidth, y: window.innerHeight / 2 });
+
+          canvas2.style.left = container.scrollLeft + "px";
         }, 10);
       }
     });
@@ -77,12 +93,12 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
   }, [ref]);
 
   const drawBorder = (canvasProps: canvasProperteis) => {
-    const { canvas, ctx, borderSize } = canvasProps;
+    const { canvas, ctx, ctx2, borderSize } = canvasProps;
 
     ctx.beginPath();
     ctx.fillRect(0, 0, canvas.width, borderSize.y);
-    ctx.fillRect(0, 0, borderSize.x, canvas.height);
-    ctx.fillRect(canvas.width - borderSize.x, 0, borderSize.x, canvas.height);
+    ctx2.fillRect(0, 0, borderSize.x, canvas.height);
+    ctx2.fillRect(canvas.width - borderSize.x, 0, borderSize.x, canvas.height);
     ctx.fillRect(0, canvas.height - borderSize.y / 2, canvas.width, borderSize.y);
     ctx.closePath();
   };
@@ -171,15 +187,16 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
   useEffect(() => {
     if (values.length) {
       const canvasProps = getCanvasProps();
+
       const { ctx, canvas, borderSize, ctxSize } = canvasProps;
 
       ctx.textAlign = "center";
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      drawBorder(canvasProps);
-
       const { x: startX, y: startY } = calculatePositon(transferedValues[0], 0, canvasProps);
+
+      drawBorder(canvasProps);
 
       ctx.lineWidth = 0.2;
 
@@ -196,7 +213,20 @@ const Chart: FC<chartParams> = ({ values, dates, ...props }) => {
     }
   }, [ref, values, canvasSize]);
 
-  return <canvas ref={ref} {...props} />;
+  const scrollOverlay = (e: UIEvent) => {
+    if (!ref2.current) return;
+
+    ref2.current.style.left = e.currentTarget.scrollLeft + "px";
+  };
+
+  return (
+    <div ref={containerRef} onScroll={scrollOverlay} className="overflow-x-auto relative">
+      <canvas ref={ref2} className="w-full h-full absolute left-0" />
+      <div className="min-w-[1000px]">
+        <canvas ref={ref} {...props} />
+      </div>
+    </div>
+  );
 };
 
 export default Chart;

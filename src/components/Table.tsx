@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import TableElement from "./TableElement";
-import { forecast } from "../types";
+import { forecast, tableElementData } from "../types";
 
 type TableParams = {
   forecest: forecast;
@@ -39,7 +39,7 @@ const Table: FC<TableParams> = ({ forecest }) => {
       {forecest.hourly.temperature_2m.map((__, index) => {
         if (forecestFormat === "7days" && index % 24 !== 0) return;
 
-        let elementData: any = {};
+        let elementData = {};
 
         if (forecestFormat === "day")
           elementData = {
@@ -58,7 +58,7 @@ const Table: FC<TableParams> = ({ forecest }) => {
             precipitation: getAvg(forecest.hourly.precipitation.slice(index + 7, index + 19)),
           };
 
-        return <TableElement key={index} format={forecestFormat} data={elementData} />;
+        return <TableElement key={index} format={forecestFormat} data={elementData as tableElementData} />;
       })}
     </div>
   );

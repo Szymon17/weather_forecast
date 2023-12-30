@@ -57,7 +57,7 @@ const Prediction = () => {
           Prognoza pogody na 7dni
         </Button>
         <FontAwesomeIcon
-          className="absolute md:h-full right-5 -bottom-12 md:right-0 md:top-0 cursor-pointer"
+          className="absolute right-5 sm:text-2xl md:text-4xl -bottom-14 md:right-10 md:top-0 cursor-pointer"
           icon={displayType === "chart" ? faTable : faChartLine}
           onClick={changeDisplayStyle}
         />
