@@ -2,7 +2,7 @@
   border: 1px solid black;
   overflow: hidden;
   height: 500px;
-  width: calc(100vw - 18px);
+  width: 100%;
 }
 
 .Chart li {
