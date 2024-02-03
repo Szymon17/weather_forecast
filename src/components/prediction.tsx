@@ -3,7 +3,7 @@ import { ForecestContext } from "../context/forecast.context";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine, faTable } from "@fortawesome/free-solid-svg-icons";
 import Button from "./Button";
-import Chart from "./Chart";
+import Chart from "./Chart/Chart";
 import Table from "./Table";
 import { forecast } from "../types";
 
@@ -31,10 +31,6 @@ const Prediction = () => {
     else setActualForecest(forecast7days);
   }, [predictionType, forecast7days]);
 
-  const getDates = () => actualForecest?.hourly.time || [];
-
-  const getTemperatures = () => actualForecest?.hourly.temperature_2m || [];
-
   return (
     <main className="lg:mx-auto pt-5 h-1/2 w-full grow flex flex-col max-h-[1000px] max-w-[2000px] ">
       <div className="2xl:mx-40 relative flex gap-10 justify-center lg:text-xl 2xl:text-3xl mb-2">
@@ -57,15 +53,15 @@ const Prediction = () => {
           Prognoza pogody na 7dni
         </Button>
         <FontAwesomeIcon
-          className="absolute right-5 sm:text-2xl md:text-4xl -bottom-14 md:right-10 md:top-0 cursor-pointer"
+          className="absolute z-10 right-5 sm:text-2xl md:text-4xl -bottom-16 md:right-10 md:top-0 cursor-pointer"
           icon={displayType === "chart" ? faTable : faChartLine}
           onClick={changeDisplayStyle}
         />
       </div>
       {actualForecest && (
-        <div className="w-full grow md:px-10">
+        <div className="w-full grow">
           {displayType === "chart" ? (
-            <Chart className="border-black border-2 w-full h-full overflow-hidden" dates={getDates()} values={getTemperatures()} />
+            <Chart dates={actualForecest.hourly.time} values={actualForecest.hourly.temperature_2m} type={predictionType} />
           ) : (
             <Table forecest={actualForecest} />
           )}

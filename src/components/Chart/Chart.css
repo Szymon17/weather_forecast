@@ -1,0 +1,61 @@
+.Chart {
+  border: 1px solid black;
+  overflow: hidden;
+  height: 500px;
+  width: calc(100vw - 18px);
+}
+
+.Chart li {
+  list-style: none;
+}
+
+.scroll-container {
+  height: 100%;
+  overflow-x: auto;
+}
+
+.chart-container {
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+  height: calc(100% - 30px);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: whitesmoke;
+  font-size: 0.8em;
+}
+
+.top > li {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.left {
+  width: 0;
+  color: white;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.left-value {
+  list-style: none;
+}
+
+.right {
+  width: 0;
+  height: 100%;
+  position: absolute;
+  left: 0;
+}
